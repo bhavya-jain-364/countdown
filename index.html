@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Countdown Timer</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: black;
+            color: red;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 4rem;
+            margin: 0;
+        }
+        #countdown {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div id="countdown">
+        <div>SLAP SCHEDULED</div>
+        <div id="time">00:00:00:00</div>
+    </div>
+
+    <script>
+        function playBeep() {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+
+            oscillator.type = 'square';
+            oscillator.frequency.setValueAtTime(440, audioContext.currentTime); // 440 Hz (A4)
+            gainNode.gain.setValueAtTime(1, audioContext.currentTime);
+
+            oscillator.start();
+            setTimeout(() => {
+                oscillator.stop();
+            }, 100); // Beep for 100 milliseconds
+        }
+
+        function startCountdown(endTime, display) {
+            let interval = setInterval(function () {
+                let now = new Date().getTime();
+                let distance = endTime - now;
+
+                let days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                let hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                let minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                let seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                days = days < 10 ? "0" + days : days;
+                hours = hours < 10 ? "0" + hours : hours;
+                minutes = minutes < 10 ? "0" + minutes : minutes;
+                seconds = seconds < 10 ? "0" + seconds : seconds;
+
+                display.textContent = days + ":" + hours + ":" + minutes + ":" + seconds;
+
+                playBeep();
+
+                if (distance < 0) {
+                    clearInterval(interval);
+                    display.textContent = "00:00:00:00";
+                }
+            }, 1000);
+        }
+
+        window.onload = function () {
+            let endTime = new Date('July 13, 2024 23:00:00').getTime(); // July 13, 2024, at 11 PM
+            let display = document.querySelector('#time');
+            startCountdown(endTime, display);
+        };
+    </script>
+</body>
+</html>
